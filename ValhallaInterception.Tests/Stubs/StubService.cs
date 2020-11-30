@@ -8,5 +8,8 @@ namespace ValhallaInterception.Tests.Stubs
 {
 	class StubService : IStubService
 	{
+		public void DoSomething()
+		{
+		}
 	}
 }
