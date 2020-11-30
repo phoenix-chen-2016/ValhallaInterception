@@ -113,5 +113,28 @@ namespace ValhallaInterception.Tests
 			// assert
 			fakeInterceptor.Received().Intercept(Arg.Any<IInvocation>());
 		}
+
+		[TestMethod]
+		public void 如果沒有指定Proxy的物件實作型別不會有Proxy()
+		{
+			// arrange
+			var services = new ServiceCollection();
+
+			services.AddTransient<IStubService, StubService>();
+
+			var fakeInterceptor = Substitute.For<IInterceptor>();
+			services.AddSingleton(fakeInterceptor);
+
+			var providerFactory = new DynamicProxyInterceptionServiceProviderFactory();
+			var sut = providerFactory.CreateServiceProvider(services);
+
+			// act
+			var actual = sut.GetRequiredService<IStubService>();
+
+			// assert
+			actual.GetType()
+				.Should()
+				.Be(typeof(StubService));
+		}
 	}
 }
