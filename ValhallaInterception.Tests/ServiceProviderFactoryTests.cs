@@ -30,8 +30,20 @@ namespace ValhallaInterception.Tests
 		public void 取得物件是Proxy物件()
 		{
 			// arrange
+			var services = new ServiceCollection();
+
+			services.AddTransient<IStubService, StubService>();
+
+			var providerFactory = new DynamicProxyInterceptionServiceProviderFactory();
+			var sut = providerFactory.CreateServiceProvider(services);
+
 			// act
+			var actual = sut.GetRequiredService<IStubService>();
+
 			// assert
+			actual.GetType()
+				.Should()
+				.NotBe(typeof(StubService));
 		}
 	}
 }
