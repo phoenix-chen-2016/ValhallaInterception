@@ -30,7 +30,10 @@ namespace Valhalla.Interception
 							{
 								return ActivatorUtilities.CreateInstance(
 									sp,
-									warppedType);
+									warppedType,
+									new object[] {
+										sp.GetServices<IInterceptor>()
+									});
 							},
 							descriptor.Lifetime));
 

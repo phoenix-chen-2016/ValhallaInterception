@@ -1,10 +1,10 @@
+using Castle.DynamicProxy;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NSubstitute;
 using Valhalla.Interception;
 using ValhallaInterception.Tests.Stubs;
-using NSubstitute;
-using Castle.DynamicProxy;
 
 namespace ValhallaInterception.Tests
 {
@@ -57,14 +57,17 @@ namespace ValhallaInterception.Tests
 			services.AddTransient<IStubService, StubService>();
 
 			var fakeInterceptor = Substitute.For<IInterceptor>();
+			services.AddSingleton(fakeInterceptor);
+
 			var providerFactory = new DynamicProxyInterceptionServiceProviderFactory();
 			var serviceProvider = providerFactory.CreateServiceProvider(services);
 			var sut = serviceProvider.GetRequiredService<IStubService>();
 
-			fakeInterceptor.Received().Intercept(Arg.Any<IInvocation>());
-
 			// act
 			sut.DoSomething();
+
+			// assert
+			fakeInterceptor.Received().Intercept(Arg.Any<IInvocation>());
 		}
 	}
 }
