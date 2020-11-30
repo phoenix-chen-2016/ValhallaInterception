@@ -34,6 +34,9 @@ namespace ValhallaInterception.Tests
 			// arrange
 			var services = new ServiceCollection();
 
+			services.ConfigureValhallaInterception()
+				.AddTypeMatcher<IStubService>();
+
 			services.AddTransient<IStubService, StubService>();
 
 			var providerFactory = new DynamicProxyInterceptionServiceProviderFactory();
@@ -53,6 +56,9 @@ namespace ValhallaInterception.Tests
 		{
 			// arrange
 			var services = new ServiceCollection();
+
+			services.ConfigureValhallaInterception()
+				.AddTypeMatcher<IStubService>();
 
 			services.AddTransient<IStubService, StubService>();
 
@@ -76,6 +82,9 @@ namespace ValhallaInterception.Tests
 			// arrange
 			var services = new ServiceCollection();
 
+			services.ConfigureValhallaInterception()
+				.AddTypeMatcher<IStubService>();
+
 			services.AddTransient<IStubService>(sp => new StubService());
 
 			var fakeInterceptor = Substitute.For<IInterceptor>();
@@ -97,6 +106,9 @@ namespace ValhallaInterception.Tests
 		{
 			// arrange
 			var services = new ServiceCollection();
+
+			services.ConfigureValhallaInterception()
+				.AddTypeMatcher<IStubService>();
 
 			services.AddSingleton<IStubService>(new StubService());
 

@@ -1,7 +1,9 @@
 ﻿using Castle.DynamicProxy;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Valhalla.Interception.Configuration;
 
 namespace Valhalla.Interception
 {
@@ -11,6 +13,10 @@ namespace Valhalla.Interception
 
 		public IServiceProvider CreateServiceProvider(IServiceCollection containerBuilder)
 		{
+			var tempServiceProvider = containerBuilder.BuildServiceProvider();
+
+			var matchers = tempServiceProvider.GetServices<ITypeMatcher>();
+
 			IServiceCollection warppedServices = new ServiceCollection();
 
 			var proxy = new ProxyGenerator();
@@ -18,6 +24,12 @@ namespace Valhalla.Interception
 			foreach (var descriptor in containerBuilder)
 			{
 				if (descriptor.ServiceType == typeof(IInterceptor))
+				{
+					warppedServices.Add(descriptor);
+					continue;
+				}
+
+				if (!CheckTypeMatched(matchers, descriptor.ServiceType))
 				{
 					warppedServices.Add(descriptor);
 					continue;
@@ -89,6 +101,20 @@ namespace Valhalla.Interception
 			}
 
 			return warppedServices.BuildServiceProvider();
+		}
+
+		private bool CheckTypeMatched(IEnumerable<ITypeMatcher>? matchers, Type serviceType)
+		{
+			if (matchers == null)
+				return false;
+
+			foreach (var matcher in matchers)
+			{
+				if (matcher.Match(serviceType))
+					return true;
+			}
+
+			return false;
 		}
 	}
 }
