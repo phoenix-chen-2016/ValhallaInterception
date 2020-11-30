@@ -17,6 +17,12 @@ namespace Valhalla.Interception
 
 			foreach (var descriptor in containerBuilder)
 			{
+				if (descriptor.ServiceType == typeof(IInterceptor))
+				{
+					warppedServices.Add(descriptor);
+					continue;
+				}
+
 				if (descriptor.ImplementationType != null)
 				{
 					var warppedType = proxy.ProxyBuilder.CreateClassProxyType(
@@ -51,6 +57,25 @@ namespace Valhalla.Interception
 								var target = proxy.CreateInterfaceProxyWithTarget(
 									descriptor.ServiceType,
 									descriptor.ImplementationFactory(sp),
+									sp.GetServices<IInterceptor>().ToArray());
+
+								return target;
+							},
+							descriptor.Lifetime));
+
+					continue;
+				}
+
+				if (descriptor.ImplementationInstance != null)
+				{
+					warppedServices.Add(
+						ServiceDescriptor.Describe(
+							descriptor.ServiceType,
+							sp =>
+							{
+								var target = proxy.CreateInterfaceProxyWithTarget(
+									descriptor.ServiceType,
+									descriptor.ImplementationInstance,
 									sp.GetServices<IInterceptor>().ToArray());
 
 								return target;
