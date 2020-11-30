@@ -1,6 +1,7 @@
 ﻿using Castle.DynamicProxy;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 
 namespace Valhalla.Interception
 {
@@ -34,6 +35,25 @@ namespace Valhalla.Interception
 									new object[] {
 										sp.GetServices<IInterceptor>()
 									});
+							},
+							descriptor.Lifetime));
+
+					continue;
+				}
+
+				if (descriptor.ImplementationFactory != null)
+				{
+					warppedServices.Add(
+						ServiceDescriptor.Describe(
+							descriptor.ServiceType,
+							sp =>
+							{
+								var target = proxy.CreateInterfaceProxyWithTarget(
+									descriptor.ServiceType,
+									descriptor.ImplementationFactory(sp),
+									sp.GetServices<IInterceptor>().ToArray());
+
+								return target;
 							},
 							descriptor.Lifetime));
 
