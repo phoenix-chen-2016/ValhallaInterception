@@ -69,5 +69,27 @@ namespace ValhallaInterception.Tests
 			// assert
 			fakeInterceptor.Received().Intercept(Arg.Any<IInvocation>());
 		}
+
+		[TestMethod]
+		public void 註冊的實作是工廠方法也可以正常()
+		{
+			// arrange
+			var services = new ServiceCollection();
+
+			services.AddTransient<IStubService>(sp => new StubService());
+
+			var fakeInterceptor = Substitute.For<IInterceptor>();
+			services.AddSingleton(fakeInterceptor);
+
+			var providerFactory = new DynamicProxyInterceptionServiceProviderFactory();
+			var serviceProvider = providerFactory.CreateServiceProvider(services);
+			var sut = serviceProvider.GetRequiredService<IStubService>();
+
+			// act
+			sut.DoSomething();
+
+			// assert
+			fakeInterceptor.Received().Intercept(Arg.Any<IInvocation>());
+		}
 	}
 }
